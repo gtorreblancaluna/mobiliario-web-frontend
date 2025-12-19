@@ -1,0 +1,6 @@
+# Excluir dependencias de desarrollo y archivos de Git
+node_modules
+dist
+.git
+.gitignore
+npm-debug.log

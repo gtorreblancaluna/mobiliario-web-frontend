@@ -1,0 +1,32 @@
+# Define tu ID de proyecto de Google Cloud
+GCP_PROJECT_ID="windy-container-237418"
+
+# Define un nombre para tu servicio/aplicación
+APP_NAME="vue-app-mobiliario"
+
+# Define la región de despliegue (ej. us-central1)
+REGION="us-central1"
+
+# Asegúrate de estar en el proyecto correcto
+gcloud config set project $GCP_PROJECT_ID
+
+# Nombre completo de la imagen en Google Container Registry
+IMAGE_TAG="gcr.io/${GCP_PROJECT_ID}/${APP_NAME}:latest"
+
+echo "Construyendo y subiendo la imagen a: ${IMAGE_TAG}"
+
+gcloud builds submit --tag $IMAGE_TAG .
+
+---
+
+gcloud run deploy ${APP_NAME} \
+    --image $IMAGE_TAG \
+    --region $REGION \
+    --platform managed \
+    --allow-unauthenticated \
+    --port 8080 \
+    --cpu 1 \
+    --memory 512Mi \
+    --min-instances 0 \
+    --max-instances 10 \
+    --ingress all
