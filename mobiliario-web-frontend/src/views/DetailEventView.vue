@@ -51,18 +51,20 @@
           <table class="articulos-table">
             <thead>
             <tr>
-              <th>Cantidad</th>
+              <th>Cant.</th>
               <th>Descripción</th>
-              <th>Precio Unit.</th>
-              <th>Subtotal</th>
+              <th class="right">Importe</th>
+              <th class="right">Descuento %</th>
+              <th class="right">Subtotal</th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="item in event.detail" :key="item.id">
-              <td data-label="Cantidad" class="col-cantidad">{{ item.amount }}</td>
-              <td data-label="Descripción" class="col-desc">{{ item.itemName }}</td>
-              <td data-label="Precio Unit.">${{ item.unitPrice }}</td>
-              <td data-label="Subtotal" class="col-subtotal">${{ item.subtotal }}</td>
+              <td data-label="Cant." >{{ item.amount }}</td>
+              <td data-label="Descripción">{{ item.itemName }}</td>
+              <td data-label="Importe" class="col-price">{{ formatCurrency(item.unitPrice) }}</td>
+              <td data-label="Descuento porcentaje" class="col-price">{{ item.discountPercentage }}</td>
+              <td data-label="Subtotal" class="col-price">{{ formatCurrency(item.subtotal) }}</td>
             </tr>
             </tbody>
           </table>
@@ -74,39 +76,39 @@
         <div class="resumen-container">
           <div class="resumen-row">
             <span class="label">Subtotal</span>
-            <span class="valor">${{ event.totals.totalItems }}</span>
+            <span class="valor">{{ formatCurrency(event.totals.totalItems) }}</span>
           </div>
 
           <div class="resumen-row">
             <span class="label">Descuento aplicado</span>
-            <span class="valor descuento">${{ event.totals.totalDiscount }}</span>
+            <span class="valor descuento">{{ formatCurrency(event.totals.totalDiscount) }}</span>
           </div>
 
           <div class="resumen-row">
             <span class="label">Env&iacute;o y recolecci&oacute;n</span>
-            <span class="valor">${{ event.envioRecoleccion }}</span>
+            <span class="valor">{{ formatCurrency(event.envioRecoleccion) }}</span>
           </div>
 
           <div class="resumen-row">
             <span class="label">Dep&oacute;sito en garant&iacute;a</span>
-            <span class="valor">${{ event.depositoGarantia }}</span>
+            <span class="valor">{{ formatCurrency(event.depositoGarantia) }}</span>
           </div>
 
           <div class="resumen-row">
             <span class="label">IVA</span>
-            <span class="valor">${{ event.totals.totalIva }}</span>
+            <span class="valor">{{ formatCurrency(event.totals.totalIva) }}</span>
           </div>
 
           <div class="resumen-row">
             <span class="label">Pagos</span>
-            <span class="valor">${{ event.totals.totalPayments }}</span>
+            <span class="valor">{{ formatCurrency(event.totals.totalPayments) }}</span>
           </div>
 
           <hr class="divisor">
 
           <div class="resumen-row total-row">
             <span class="label-total">Total:</span>
-            <span class="valor-total">${{ event.totals.total }}</span>
+            <span class="valor-total">{{ formatCurrency(event.totals.total) }}</span>
           </div>
         </div>
       </footer>
@@ -122,6 +124,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import RentaService from '@/services/RentaService';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 
 const route = useRoute();
 const id = route.params.id; // Obtenemos el ID de la URL
@@ -180,12 +183,17 @@ onMounted(async () => {
 
 /* --- ESTADOS (BADGES) --- */
 .status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 99px;
+  display: inline-flex;    /* Cambiado de inline-block para habilitar alineación */
+  align-items: center;     /* Centrado vertical */
+  justify-content: center; /* Centrado horizontal */
+
+  padding: 5px 12px;       /* Aumentamos un poco el padding lateral para que luzca mejor */
+  border-radius: 10px;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
-  width: fit-content;
+  width: fit-content;      /* Se ajusta al contenido */
+  text-align: center;      /* Refuerzo para navegadores antiguos */
 }
 .status-badge.confirmado { background: #dcfce7; color: #15803d; }
 .status-badge.pendiente { background: #fef9c3; color: #a16207; }
@@ -219,7 +227,13 @@ onMounted(async () => {
 /* --- SECCIÓN ARTÍCULOS (RESPONSIVE) --- */
 .detalle-articulos { padding: 1.5rem; }
 
+
 .articulos-table { width: 100%; border-collapse: collapse; }
+
+.col-price {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
 
 /* Vista Mobile: Tabla -> Tarjetas */
 @media (max-width: 767px) {
@@ -246,8 +260,7 @@ onMounted(async () => {
     font-size: 0.75rem;
     text-transform: uppercase;
   }
-  .col-cantidad { color: #3b82f6; font-weight: 700; }
-  .col-subtotal { font-weight: 800; color: #1e293b; }
+  .col-price { color: #3b82f6; font-weight: 700; }
 }
 
 /* Vista Desktop: Tabla Normal */
