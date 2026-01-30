@@ -6,19 +6,18 @@
       <span class="label">Inicio</span>
     </router-link>
 
-    <router-link to="/buscar" class="nav-item">
-      <i class="icon">🔍</i>
-      <span class="label">Buscar</span>
-    </router-link>
-
-    <router-link to="/eventos" class="nav-item nav-center-action">
+    <router-link 
+        v-show="authStore.isAuthenticated" 
+        to="/eventos" class="nav-item nav-center-action">
       <i class="icon">📅</i>
-      <span class="label">Rentas</span>
+      <span class="label">Eventos</span>
     </router-link>
 
-    <router-link to="/notificaciones" class="nav-item">
-      <i class="icon">🔔</i>
-      <span class="label">Alertas</span>
+    <router-link 
+        v-show="authStore.isAuthenticated" 
+        to="/logs" class="nav-item">
+      <i class="icon">📄</i>
+      <span class="label">Logs</span>
     </router-link>
 
     <template v-if="authStore.isAuthenticated">

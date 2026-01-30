@@ -170,29 +170,9 @@ onMounted(() => {
 /* 1. MOBILE-FIRST (Estilos para la vista de bloques/tarjetas) */
 /* ---------------------------------------------------- */
 
-/* Botón que activa el panel */
-.btn-toggle {
-  width: 100%;
-  padding: 10px;
-  background-color: #f3f4f6;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  font-weight: 600;
-  cursor: pointer;
-}
 
-/* --- Animación de entrada y salida --- */
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: all 0.3s ease-out;
-}
 
-.fade-slide-enter-from,
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(-10px); /* El panel "cae" desde arriba */
-}
+
 
 /* Estilos base del contenedor */
 .filter-container {
@@ -231,27 +211,7 @@ input:focus {
   gap: 1rem;
 }
 
-.filter-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
 
-.filter-field label {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #6b7280;
-  padding-left: 2px;
-}
-
-.filter-field input {
-  width: 100%; /* Ocupa todo el ancho en móvil */
-  padding: 0.75rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 10px;
-  font-size: 1rem;
-  -webkit-appearance: none; /* Mejor apariencia en iOS */
-}
 
 .btn-submit {
   width: 100%; /* Botón grande y fácil de tocar en móvil */
@@ -368,9 +328,7 @@ input:focus {
     padding: 1.5rem;
   }
 
-  .filter-field {
-    flex: 1; /* Los inputs crecen equitativamente */
-  }
+
 
   .btn-submit {
     width: auto; /* El botón solo ocupa lo necesario */

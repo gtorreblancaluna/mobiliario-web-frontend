@@ -6,10 +6,13 @@
       </router-link>
 
       <div class="main-links">
-        <router-link to="/eventos" class="nav-item">Rentas</router-link>
-        <router-link to="/servicios" class="nav-item">Servicios</router-link>
-        <router-link to="/blog" class="nav-item">Usuarios</router-link>
-        <router-link to="/contacto" class="nav-item">Contacto</router-link>
+        <router-link 
+          v-show="authStore.isAuthenticated"
+          to="/eventos" class="nav-item">Eventos</router-link>
+        <router-link 
+          v-show="authStore.isAuthenticated"
+          to="/logs" class="nav-item">Logs</router-link>
+        <router-link to="/cotizar" class="nav-item">Cotizaci&oacute;n</router-link>
       </div>
 
 

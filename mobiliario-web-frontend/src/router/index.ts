@@ -25,6 +25,12 @@ const routes = [
         component: () => import('../views/EventsTableView.vue'),
         meta: { requiresAuth: true }
     },
+        {
+        path: '/logs',
+        name: 'LogsView',
+        component: () => import('../views/LogsView.vue'),
+        meta: { requiresAuth: true }
+    },
     {
         path: '/eventos/:id',
         name: 'DetailEventView',

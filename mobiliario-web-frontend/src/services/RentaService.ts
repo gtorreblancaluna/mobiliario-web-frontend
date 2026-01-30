@@ -2,7 +2,7 @@
 import api from '@/services/api.ts';
 
 // Definición de las rutas de la API para los eventos
-const EVENT_URL = '/renta';
+const EVENT_URL = '/event';
 
 /**
  * Servicio para manejar todas las operaciones de la API relacionadas con Eventos.
@@ -55,12 +55,12 @@ const RentaService = {
      * * @param {Object} eventData - Los datos del evento a crear.
      * @returns {Promise<Object>} La promesa que resuelve con el evento creado (incluyendo el ID).
      */
-    async createEvent(eventData: any) {
+    async save(eventData: any) {
         try {
-            const response = await api.post(EVENT_URL, eventData);
-            return response.data; // Devuelve el evento recién creado
+            const response = await api.post(EVENT_URL+"/save", eventData); // Devuelve el evento recién creado
+            return response.data;
         } catch (error) {
-            console.error("Error al crear el evento:", error);
+            console.error("Error al crear o actualizar el evento:", error);
             throw error;
         }
     }

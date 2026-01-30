@@ -22,11 +22,39 @@ export const formatCurrency = (value: string): string => {
 /**
  * Formatea una fecha string a un formato legible
  */
-export const formatDate = (dateString: string | number | Date) => {
-    if (!dateString) return '---';
-    return new Date(dateString).toLocaleDateString('es-MX', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
+export const formatDate = (dateString: string | number | Date | undefined | null) => {
+  // 1. Manejo de nulos o vacíos (Type Guard inicial)
+  if (dateString === null || dateString === undefined || dateString === '') {
+    return 'Sin fecha';
+  }
+  
+  let date: Date;
+
+  // 2. Si es un string, TypeScript ahora sabe que NO es undefined/null
+  if (typeof dateString === 'string') {
+    if (dateString.includes('/')) {
+      // Forzamos a TS a reconocer que aquí dateString es puramente un string
+      const parts: string[] = dateString.split('/');
+      date = new Date(
+        parseInt(parts[2] ?? "0"), 
+        parseInt((parts[1] ?? "1")) - 1, 
+        parseInt(parts[0] ?? "1")
+      );
+    } else {
+      date = new Date(dateString);
+    }
+  } 
+  // 3. Si es number o Date
+  else {
+    date = new Date(dateString);
+  }
+
+  // Validación de seguridad final
+  if (isNaN(date.getTime())) return 'Fecha inválida';
+
+  return new Intl.DateTimeFormat('es-MX', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }).format(date);
 };

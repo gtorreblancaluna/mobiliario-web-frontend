@@ -42,6 +42,7 @@ const closeMenu = () => {
     <main class="app-content">
       <RouterView />
       <ErrorModal />
+      <hr />
     </main>
 
   </div>
