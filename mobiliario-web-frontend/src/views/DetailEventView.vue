@@ -11,7 +11,8 @@
 
     <div v-else-if="eventDetailResponse.event" class="detalle-card">
       <header class="detalle-header">
-        <h1>Folio: {{ eventDetailResponse.event.folio }}</h1>
+        <h1 v-if="!isNewEvent">Folio: {{ eventDetailResponse.event.folio }}</h1>
+        <h1 v-else>Nuevo evento</h1>
         <span class="status-badge" :class="eventDetailResponse.event.estadoDescription.toLowerCase()">
           {{ eventDetailResponse.event.tipo }} - {{ eventDetailResponse.event.estadoDescription }}
         </span>
@@ -70,7 +71,7 @@
           </div>
         </div>
 
-        <div class="info-group">
+        <div v-if="!isNewEvent" class="info-group">
           <label>👤 Atendi&oacute;</label>
           <p>{{ eventDetailResponse.event.userName }}</p>
         </div>
@@ -98,7 +99,7 @@
           <label>👤 Cliente</label>
           <p>{{ eventDetailResponse.event.clienteNombre }}</p>
         </div>
-        <div class="info-group">
+        <div v-if="!isNewEvent" class="info-group">
           <label>📅 Fecha de registro</label>
           <p>
             {{ formatDate(eventDetailResponse.event.fechaPedido) }}
@@ -498,42 +499,137 @@
   </div>
 </div>
 
-  <div v-if="showModalNewItem" class="modal-overlay">
-    <div class="modal-content">
-      <h3>Nuevo Artículo</h3>
-      <hr>
+  <! -- Modal crear o elegir artículo. -->  
 
-      <div class="form-group" style="position: relative;">
-        <label>Buscar Artículo:</label>
-        <input 
-          type="text" 
-          v-model="searchQuery" 
-          @input="showDropdown = true"
-          placeholder="Escribe para buscar..." 
-          class="filter-field"
-        >
-        
-        <ul v-if="showDropdown && filteredCatalog.length" class="autocomplete-results">
-          <li 
-            v-for="product in filteredCatalog" 
-            :key="product.id" 
-            @click="selectProduct(product)"
+  <div v-if="showModalNewItem" class="modal-overlay" @click.self="closeModalNewItem">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Selecciona un artículo</h3>
+      <button @click="closeModalNewItem" class="btn-close">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="search-section">
+        <label class="label-primary">Buscar articulo: </label>
+        <div class="search-input-container">
+          <input 
+            type="text" 
+            v-model="searchQuery" 
+            @input="showDropdown = true"
+            placeholder="Escribe para buscar..." 
+            class="filter-field"
           >
-            <div class="prod-info">
-              <span class="prod-name">{{ product.code }}</span>
-              <span> / </span>
-              <span class="prod-price">{{ product.itemName }}</span>
-              <span> / </span>
-              <span>{{ product.color }}</span>
-            </div>
-          </li>
-        </ul>
-        <div>
-          <button @click="closeModalNewItem" class="btn-toggle">Cancelar</button>
+        
+          <ul v-if="showDropdown && filteredCatalog.length" class="autocomplete-results">
+            <li 
+              v-for="product in filteredCatalog" 
+              :key="product.id" 
+              @click="selectProduct(product)"
+            >
+              <span class="prod-name">{{ product.itemName }}</span>
+              <small>{{ product.code }}</small>
+              <small>{{ product.color }}</small>
+            </li>
+          </ul>
         </div>
+      </div>
+      <div>
+        <button @click="closeModalNewItem" class="btn-toggle">Cancelar</button>
+      </div>
       </div>      
     </div>
   </div>
+
+
+  <! -- Modal crear o elegir cliente. -->
+
+<div v-if="showModalClients" class="modal-overlay" @click.self="closeModalClients">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Información del Cliente</h3>
+      <button @click="closeModalClients" class="btn-close">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="search-section">
+        <label class="label-primary">¿Ya es cliente? Búscalo aquí:</label>
+        <div class="search-input-container">
+          <input 
+            type="text" 
+            v-model="searchClientQuery" 
+            @input="showClientDropdown = true"
+            placeholder="Nombre, teléfono o email..." 
+            class="input-main"
+          >
+          <ul v-if="showClientDropdown && filteredClients.length" class="autocomplete-results">
+            <li v-for="client in filteredClients" :key="client.id" @click="selectClient(client)">
+              <span class="client-fullname">{{ client.fullName }}</span>
+              <small>{{ client.mobilePhone }}</small>
+              <small>{{ client.email }}</small>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="divider"><span>O crea uno nuevo</span></div>
+
+      <div class="client-form-grid">
+        <div class="form-field">
+          <label>Nombre *</label>
+          <input type="text" v-model="newClient.firstName" placeholder="Ej. Juan">
+        </div>
+        <div class="form-field">
+          <label>Apellidos</label>
+          <input type="text" v-model="newClient.lastName" placeholder="Ej. Pérez">
+        </div>
+        <div class="form-field">
+          <label>Fecha de cumpleaños</label>
+          <input type="date" v-model="newClient.birthday">
+        </div>
+        <div class="form-field">
+          <label>RFC</label>
+          <input type="text" 
+            v-model="newClient.rfc" 
+            @blur="newClient.rfc = newClient.rfc?.trim().toUpperCase()"
+            placeholder="Ej. ABC123456789">
+        </div>
+        <div class="form-field">
+          <label>Móvil</label>
+          <input type="tel" v-model="newClient.mobilePhone" placeholder="10 dígitos">
+        </div>
+        <div class="form-field">
+          <label>Email</label>
+          <input type="email" v-model="newClient.email" placeholder="correo@ejemplo.com">
+        </div>
+        <div class="form-field">
+          <label>Medio de contacto</label>
+          <select v-model="newClient.socialMediaContactId">
+            <option value="" disabled>Seleccionar...</option>
+            <option v-for="sm in catalogSocialMediaContacts" :key="sm.id" :value="sm.id">
+              {{ sm.description }}
+            </option>
+          </select>
+        </div>
+        <div class="form-field full-width">
+          <label>Dirección</label>
+          <input type="text" v-model="newClient.address">
+        </div>
+        
+        <div class="form-field flex-row">
+          <div class="form-check form-switch"> 
+            <input class="form-check-input" type="checkbox" id="vip" v-model="newClient.isVip">
+            <label class="form-check-label" for="vip">Cliente VIP</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button @click="closeModalClients" class="btn-secondary">Cancelar</button>
+      <button @click="addClient" class="btn-primary">Guardar Cliente</button>
+    </div>
+  </div>
+</div>
 
   <div>
     <BaseModal 
@@ -549,59 +645,89 @@
 
 <script setup >
 import { ref, onMounted, computed } from 'vue';
-import { useRoute } from 'vue-router';
-import RentaService from '@/services/RentaService';
+import { useRoute, useRouter } from 'vue-router';
+import EventService from '@/services/EventService';
 import ItemService from '@/services/ItemService';
 import UserService from '@/services/UserService';
+import ClientService from '@/services/ClientService';
+import SocialMediaContactService from '@/services/SocialMediaContactService';
 import TypePaymentService from '@/services/TypePaymentService';
 import BaseModal from '@/components/BaseModal.vue';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 
 const route = useRoute();
-const id = route.params.id; // Obtenemos el ID de la URL
+const router = useRouter();
+
+const eventId = computed(() => {
+    const val = Number(route.params.id);
+    return isNaN(val) ? 0 : val;
+});
 const isSectionItemsVisible = ref(true);
 const isSectionPaymentsVisible = ref(true);
 
 const eventDetailResponse = ref(null);
 const isLoading = ref(true);
 const isEditing = ref(false);
+const isNewEvent = ref(true);
 const showModalNewItem = ref(false);
 const showModalNewPayment = ref(false);
+const showModalClients = ref(false);
 
 const isModalVisible = ref(false);
 const modalMessage = ref('');
 
 const catalogTypePayments = ref([]); 
 const catalogChoferes = ref([]); 
+const catalogClients = ref([]); 
+const catalogSocialMediaContacts = ref([]);
 // 1. Catálogo que viene del Backend (Java API)
 const catalogItems = ref([]); 
 const searchQuery = ref('');
+const searchClientQuery = ref('');
 const showDropdown = ref(false);
+const showClientDropdown = ref(false);
+
+const newClient = ref({
+  fullName: '',
+  firstName: '',
+  lastName: '',
+  nickname: '',
+  mobilePhone: '',
+  landlinePhone: '',
+  email: '',
+  address: '',
+  rfc: '',
+  birthday: '',
+  socialMediaContactId: null,
+  isVip: false
+});
+
+const addClient = async () => {
+  try {
+    const createdClient = await ClientService.createClient(newClient.value);
+    eventDetailResponse.value.event.clienteId = createdClient.id;
+    eventDetailResponse.value.event.clienteNombre = createdClient.fullName;
+    isModalVisible.value = true;
+    modalMessage.value = "Cliente creado y asignado al evento exitosamente";
+    showModalClients.value = false;
+    getChoferes();
+  } catch (error) {
+    console.error("Error al crear el cliente:", error);
+  }
+};
 
 const handleEditClick = async () => {
   if (isEditing.value) {
     try {
-      const response = await RentaService.save(eventDetailResponse.value);
+      await EventService.save(eventDetailResponse.value);
       // Si el backend devuelve un String directo en el Body:
-      modalMessage.value = typeof response === 'string' ? response : (response.data || "Guardado exitosamente");
-    } catch (error) {
-      console.error("Error al guardar:", error);
-      
-      // Manejo seguro del error de Axios
-      if (error.response && error.response.data) {
-        // El servidor respondió con un código (4xx, 5xx)
-        modalMessage.value = error.response.data.message || error.response.data || "Error en el servidor";
-      } else if (error.request) {
-        // La petición se hizo pero no hubo respuesta (Error de red)
-        modalMessage.value = "No se recibió respuesta del servidor. Revisa tu conexión.";
-      } else {
-        // Algo pasó al preparar la petición
-        modalMessage.value = "Error: " + error.message;
-      }
-    } finally {
       isModalVisible.value = true;
+      modalMessage.value = "Guardado exitosamente";
       await fetchEventDetail(route.params.id); 
       isEditing.value = false;
+      isNewEvent.value = false;
+    } catch (error) {
+      console.error("Error al guardar el evento:", error);
     }
   } else {
     isEditing.value = true;
@@ -731,6 +857,11 @@ const openModalNewItem = async () => {
   }
 };
 
+const closeModalClients = () => {
+  showModalClients.value = false;
+  router.back();
+};
+
 const closeModalNewPayment = () => {
   showModalNewPayment.value = false;
   newPayment.value = { id: 0, amount: 0, date: '', comment: '', typeId: 1 };
@@ -764,6 +895,24 @@ const filteredCatalog = computed(() => {
 });
 
 
+const filteredClients = computed(() => {
+  const query = searchClientQuery.value.toLowerCase().trim();
+  
+  if (!query) return [];
+
+  return catalogClients.value.filter((client) => {
+    // 1. Verificar Nombre
+    const matchName = client.fullName.toLowerCase().includes(query);
+    // 2. Verificar Email
+    const matchEmail = client.email?.toLowerCase().includes(query);
+    // 3. Verificar Teléfono Móvil
+    const matchMobilePhone = client.mobilePhone?.toLowerCase().includes(query);
+    // Retornar true si alguno de los campos coincide
+    return matchName || matchEmail || matchMobilePhone;
+  });
+});
+
+
 const addPaymentToEvent = () => {
   const paymentToAdd = {
     id: 0, // Generar un ID temporal único
@@ -782,6 +931,17 @@ const addPaymentToEvent = () => {
   calculateTotals();
   closeModalNewPayment();
 };
+
+const selectClient = (client) => {
+  eventDetailResponse.value.event.clienteId = client.id;
+  eventDetailResponse.value.event.clienteNombre = client.fullName;
+
+  searchClientQuery.value = '';
+  showClientDropdown.value = false;
+  showModalClients.value = false;
+  getChoferes();
+};
+
 // 3. Función para seleccionar un artículo del catálogo
 const selectProduct = (product) => {
 
@@ -901,7 +1061,11 @@ const endHourFechaDevolucion = initHourWrapper('horaDevolucion', 1);
 
 
 const cancelEdit = async () => {
-  await fetchEventDetail(route.params.id); 
+  if (isNewEvent.value) {
+    router.back();
+    return;
+  } 
+  await fetchEventDetail(eventId.value); 
   isEditing.value = false;
   // Aquí puedes agregar lógica adicional para revertir cambios si es necesario
 };
@@ -909,7 +1073,7 @@ const cancelEdit = async () => {
 const fetchEventDetail = async () => {
   try {
     // Llamada a tu API de Spring Boot
-    eventDetailResponse.value = await RentaService.fetchEventById(id);
+    eventDetailResponse.value = await EventService.fetchEventById(eventId.value);
 
     // Ordenar la tabla principal después de agregar
     eventDetailResponse.value.detail.sort((a, b) => 
@@ -923,8 +1087,78 @@ const fetchEventDetail = async () => {
   }
 };
 
+const resetValuesInEventDetail = () => {
+
+  newClient.value = {
+    name: '',
+    lastName: '',
+    nickname: '',
+    mobilePhone: '',
+    landlinePhone: '',
+    email: '',
+    address: '',
+    rfc: '',
+    birthday: '',
+    socialMediaContactId: null,
+    isVip: false
+  };
+
+  eventDetailResponse.value = {
+      event: {
+        id: 0,
+        userName: '',
+        choferId: null,
+        choferName: '',
+        clienteNombre: '',
+        fechaPedido: '',
+        fechaEntrega: '',
+        horaEntrega: '',
+        fechaDevolucion: '',
+        horaDevolucion: '',
+        descripcion: '',
+        comentario: '',
+        porcentajeDescuento: 0,
+        envioRecoleccion: 0,
+        depositoGarantia: 0,
+        iva: 0,
+        estadoDescription: 'Nuevo'
+      },
+      detail: [],
+      payments: [],
+      totals: {
+        totalItems: 0,
+        totalDiscount: 0,
+        totalIva: 0,
+        totalPayments: 0,
+        total: 0
+      }
+    };
+};
+
+const getCatalogClients = async () => {
+  if (catalogClients.value.length > 0) return; // Ya cargado
+  catalogClients.value = await ClientService.getAll();
+};
+
+const getCatalogSocialMediaContacts = async () => {
+  if (catalogSocialMediaContacts.value.length > 0) return; // Ya cargado
+  catalogSocialMediaContacts.value = await SocialMediaContactService.getAll();
+};
+
 onMounted(async () => {
-  fetchEventDetail();
+  if (eventId.value === 0) {
+    getCatalogClients();
+    getCatalogSocialMediaContacts();
+    // nuevo evento
+    showModalClients.value = true;
+    isNewEvent.value = true;
+    isEditing.value = true;
+    isLoading.value = false;
+    resetValuesInEventDetail();
+  } else {
+    isNewEvent.value = false;
+    fetchEventDetail();
+  }
   if (window.innerWidth < 768) {
     isSectionItemsVisible.value = false;
     isSectionPaymentsVisible.value = false;
@@ -952,6 +1186,147 @@ onMounted(async () => {
   -webkit-appearance: none;
   margin: 0;
 }
+
+
+/*** INIT MODAL NEW CLIENT */
+/* --- ESTILO BASE DE BOTONES --- */
+.btn-primary, .btn-secondary {
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%; /* Ancho completo en móvil */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Botón Guardar */
+.btn-primary {
+  background-color: var(--primary-color, #2563eb);
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+  background-color: #1d4ed8;
+}
+
+/* Botón Cancelar */
+.btn-secondary {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.btn-secondary:active {
+  background-color: #e5e7eb;
+}
+
+/* Card del Modal */
+.modal-card {
+  background: white;
+  width: 100%;
+  max-height: 90vh;
+  border-radius: 20px 20px 0 0; /* Bordes redondeados arriba */
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* Header & Footer */
+.modal-header, .modal-footer {
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-header { border-bottom: 1px solid #eee; }
+.modal-footer { 
+  border-top: 1px solid #eee; 
+  gap: 10px;
+  background: #f9f9f9;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto; /* Scroll interno */
+}
+
+/* Grid del Formulario */
+.client-form-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* 1 columna en móvil */
+  gap: 1.2rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.form-field input, .form-field select {
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem; /* Evita zoom automático en iPhone */
+}
+
+/* Buscador Autocomplete */
+.search-section { margin-bottom: 1.5rem; }
+.search-input-container { position: relative; }
+.input-main {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid var(--primary-color, #2563eb);
+  border-radius: 10px;
+}
+
+.autocomplete-results {
+  position: absolute;
+  top: 100%; left: 0; right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 0 0 10px 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+}
+
+.autocomplete-results li {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Divider decorativo */
+.divider {
+  text-align: center;
+  margin: 1.5rem 0;
+  border-bottom: 1px solid #eee;
+  line-height: 0.1em;
+}
+.divider span { background: #fff; padding: 0 10px; color: #888; font-size: 0.8rem; }
+
 
 /* Init modal */
 
@@ -1194,6 +1569,13 @@ onMounted(async () => {
 
 /* Vista Desktop: Tabla Normal */
 @media (min-width: 768px) {
+
+  .btn-primary, .btn-secondary {
+    width: auto; /* Ancho automático según el texto */
+    min-width: 120px;
+    padding: 10px 25px;
+  }
+
   .detalle-header { flex-direction: row; justify-content: space-between; padding: 2rem; }
   .detalle-header h1 { font-size: 2rem; }
   .detalle-info { grid-template-columns: repeat(2, 1fr); padding: 2rem; }
@@ -1206,6 +1588,18 @@ onMounted(async () => {
     border-bottom: 2px solid #f1f5f9;
   }
   .table-section td { padding: 1rem 0.75rem; border-bottom: 1px solid #f1f5f9; }
+
+  .modal-overlay { align-items: center; }
+  .modal-card {
+    width: 650px;
+    border-radius: 12px;
+    max-height: 80vh;
+  }
+  .client-form-grid {
+    grid-template-columns: 1fr 1fr; /* 2 columnas en PC */
+  }
+  .full-width { grid-column: span 2; }
+
 }
 
 /* --- RESUMEN DE TOTALES (ESTILO TICKET) --- */

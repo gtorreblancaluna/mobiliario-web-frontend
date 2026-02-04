@@ -57,8 +57,7 @@ const RentaService = {
      */
     async save(eventData: any) {
         try {
-            const response = await api.post(EVENT_URL+"/save", eventData); // Devuelve el evento recién creado
-            return response.data;
+            await api.post(EVENT_URL+"/save", eventData); 
         } catch (error) {
             console.error("Error al crear o actualizar el evento:", error);
             throw error;

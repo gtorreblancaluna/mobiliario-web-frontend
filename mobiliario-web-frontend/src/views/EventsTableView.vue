@@ -4,6 +4,9 @@
 
 
     <div class="filter-wrapper">
+      <button @click="newEvent" class="btn-toggle">
+        ➕ Nuevo evento
+      </button>
       <button @click="showFilters = !showFilters" class="btn-toggle">
         {{ showFilters ? '❌ Cerrar filtros' : '🔍 Mostrar filtros' }}
       </button>
@@ -99,7 +102,8 @@
 
 <script setup>
 import {onMounted, ref,reactive} from 'vue';
-import RentaService from '@/services/RentaService';
+import { useRouter } from 'vue-router';
+import EventService from '@/services/EventService';
 
 // Definición de tipos de datos (simulada)
 const textToSearch = ref('');
@@ -108,6 +112,14 @@ const eventsFiltrados = ref([]);
 const isLoading = ref(false);
 const error = ref(null);
 const showFilters = ref(false);
+const router = useRouter();
+
+const newEvent = () => {
+  router.push({ 
+    name: 'DetailEventView', 
+    params: { id: 0 } 
+  });
+};
 
 const formatToBackend = (dateStr) => {
   if (!dateStr) return null;
@@ -145,7 +157,7 @@ const fetchEvents = async () => {
   error.value = null;
   events.value = [];
   try {
-    const result = await RentaService.getRentas({
+    const result = await EventService.getRentas({
       initFechaEntrega: formatToBackend(filter.initDate),
       endFechaEntrega: formatToBackend(filter.endDate)
     });

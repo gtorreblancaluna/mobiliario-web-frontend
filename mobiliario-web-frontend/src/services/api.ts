@@ -41,16 +41,24 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         console.error(error);
-        const errorStore = useErrorStore(); // Obtener acceso al store
+        const errorStore = useErrorStore();
         const status = error.response?.status;
-        const errorMessage = error.response?.data?.message || 'Error desconocido.';
+        const data = error.response?.data;
+
+        let errorMessage = 'Error desconocido.';
+
+        if (status === 400 && data && typeof data === 'object') {
+            // Si el backend nos mandó el mapa de errores por campo:
+            // Convertimos { firstName: "msg", mobilePhone: "msg" } en una sola cadena
+            errorMessage = Object.values(data).join(' | ');
+        } else {
+            errorMessage = data?.message || 'Error en el servidor.';
+        }
 
         if (status >= 400) {
             errorStore.showError(status, errorMessage);
         }
 
-        // Es importante devolver un Promise.reject para que el error se propague
-        // y la función que hizo la llamada sepa que falló.
         return Promise.reject(error);
     }
 );
