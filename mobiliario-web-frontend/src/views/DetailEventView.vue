@@ -31,6 +31,17 @@
       </div>
 
       <section class="detalle-info">
+        <div class="setting-row" v-show="isEditing">
+          <div class="text-info">
+            <span class="title">Mostrar precios en PDF</span>
+            <p class="description">Incluye el desglose de costos en el archivo.</p>
+          </div>
+
+          <label class="switch">
+            <input type="checkbox" v-model="eventDetailResponse.event.mostrarPreciosPdf">
+            <span class="slider"></span>
+          </label>
+        </div>
 
         <div 
           v-show="isEditing"
@@ -296,7 +307,7 @@
                   <td data-label="Comentario">{{ payment.comment }}</td>
                   <td data-label="Tipo de pago" >{{ payment.typeDescription }}</td>
                   <td data-label="Usuario">{{ payment.userName }}</td>
-                  <td data-label="Actualizado">{{ payment.updatedAt }}</td>
+                  <td data-label="Actualizado">{{ formatDate(payment.updatedAt) }}</td>
                   <td v-if="isEditing">
                     <button 
                       @click="removePayment(index, payment.amount)" 
@@ -439,12 +450,15 @@
     </div>
   </div>
 
-<div v-if="showModalNewPayment" class="modal-overlay">
-  <div class="modal-content">
-    <h3>Nuevo Pago</h3>
-    <hr>
+  <! -- Modal nuevo pago. -->
+<div v-if="showModalNewPayment" class="modal-overlay" @click.self="closeModalNewPayment"> 
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Nuevo pago</h3>
+      <button @click="closeModalNewPayment" class="btn-close">&times;</button>
+    </div>
 
-    <div class="form-grid">
+    <div class="modal-body">
       <div class="filter-field">
         <label>Cantidad:</label>
         <input 
@@ -486,11 +500,11 @@
       </div>
     </div>
 
-    <div class="modal-actions">
-      <button @click="closeModalNewPayment" class="btn-toggle">Cancelar</button>
+    <div class="modal-footer">
+      <button @click="closeModalNewPayment" class="btn-secondary">Cancelar</button>
       <button 
         @click="addPaymentToEvent()"
-        class="btn-toggle"
+        class="btn-primary"
         :disabled="newPayment.amount <= 0 || !newPayment.typeId"
       >
         Agregar pago
@@ -533,8 +547,8 @@
           </ul>
         </div>
       </div>
-      <div>
-        <button @click="closeModalNewItem" class="btn-toggle">Cancelar</button>
+      <div class="modal-footer">
+        <button @click="closeModalNewItem" class="btn-secondary">Cancelar</button>
       </div>
       </div>      
     </div>
@@ -616,10 +630,19 @@
         </div>
         
         <div class="form-field flex-row">
-          <div class="form-check form-switch"> 
-            <input class="form-check-input" type="checkbox" id="vip" v-model="newClient.isVip">
-            <label class="form-check-label" for="vip">Cliente VIP</label>
+
+          <div class="setting-row">
+            <div class="text-info">
+              <span class="title">Cliente VIP</span>
+              <p class="description">Marca el cliente como VIP.</p>
+            </div>
+
+            <label class="switch">
+              <input type="checkbox" v-model="newClient.isVip">
+              <span class="slider"></span>
+            </label>
           </div>
+
         </div>
       </div>
     </div>
@@ -644,7 +667,7 @@
 </template>
 
 <script setup >
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import EventService from '@/services/EventService';
 import ItemService from '@/services/ItemService';
@@ -658,10 +681,13 @@ import { formatCurrency, formatDate } from '@/utils/formatters';
 const route = useRoute();
 const router = useRouter();
 
-const eventId = computed(() => {
-    const val = Number(route.params.id);
-    return isNaN(val) ? 0 : val;
-});
+const eventId = ref(0);
+// Función para limpiar y asignar el valor
+const updateEventId = (val) => {
+    const num = Number(val);
+    eventId.value = isNaN(num) ? 0 : num;
+};
+
 const isSectionItemsVisible = ref(true);
 const isSectionPaymentsVisible = ref(true);
 
@@ -717,13 +743,14 @@ const addClient = async () => {
 };
 
 const handleEditClick = async () => {
-  if (isEditing.value) {
+  if (isEditing.value || isNewEvent.value) {
     try {
-      await EventService.save(eventDetailResponse.value);
-      // Si el backend devuelve un String directo en el Body:
+
+      const savedEventId = await EventService.save(eventDetailResponse.value);
+      eventId.value = savedEventId;
       isModalVisible.value = true;
       modalMessage.value = "Guardado exitosamente";
-      await fetchEventDetail(route.params.id); 
+      await fetchEventDetail();
       isEditing.value = false;
       isNewEvent.value = false;
     } catch (error) {
@@ -869,8 +896,6 @@ const closeModalNewPayment = () => {
 
 const closeModalNewItem = () => {
   showModalNewItem.value = false;
-  // Resetear el formulario
-  newItem.value = { id: null, itemName: '', amount: 1, unitPrice: 0, discountPercentage: 0 };
 };
 
 // 2. Filtrar artículos según lo que el usuario escribe
@@ -1065,7 +1090,7 @@ const cancelEdit = async () => {
     router.back();
     return;
   } 
-  await fetchEventDetail(eventId.value); 
+  await fetchEventDetail(); 
   isEditing.value = false;
   // Aquí puedes agregar lógica adicional para revertir cambios si es necesario
 };
@@ -1100,21 +1125,24 @@ const resetValuesInEventDetail = () => {
     rfc: '',
     birthday: '',
     socialMediaContactId: null,
-    isVip: false
+    isVip: false,
+
   };
 
   eventDetailResponse.value = {
       event: {
         id: 0,
         userName: '',
+        tipoId: 2, // tipo evento: cotizacion
+        estadoId: 3, // estado de evento: pendiente
         choferId: null,
         choferName: '',
         clienteNombre: '',
         fechaPedido: '',
         fechaEntrega: '',
-        horaEntrega: '',
+        horaEntrega: '09:00 a 10:00',
         fechaDevolucion: '',
-        horaDevolucion: '',
+        horaDevolucion: '10:00 a 11:00',
         descripcion: '',
         comentario: '',
         porcentajeDescuento: 0,
@@ -1146,6 +1174,8 @@ const getCatalogSocialMediaContacts = async () => {
 };
 
 onMounted(async () => {
+  updateEventId(route.params.id);
+
   if (eventId.value === 0) {
     getCatalogClients();
     getCatalogSocialMediaContacts();
@@ -1164,10 +1194,102 @@ onMounted(async () => {
     isSectionPaymentsVisible.value = false;
   }
 });
+
+// 2. Si la URL cambia (ej. vas de evento/1 a evento/2), actualizamos el ref
+watch(() => route.params.id, (newId) => {
+    updateEventId(newId);
+});
 </script>
 
 <style scoped>
 
+/** INIT SWITCH */
+
+/* Contenedor del Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+
+/* Ocultar checkbox original */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* El fondo del Switch (Slider) */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #e2e8f0; /* Gris claro (tailwind gray-200) */
+  transition: .4s;
+  border-radius: 34px;
+}
+
+/* El círculo blanco */
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Estado cuando está Activo (Checked) */
+input:checked + .slider {
+  background-color: #22c55e; /* Verde (tailwind green-500) */
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #22c55e;
+}
+
+/* Movimiento del círculo */
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.setting-row .text-info {
+  display: flex;
+  flex-direction: column;
+  padding-right: 12px;
+}
+
+.setting-row .title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.setting-row .description {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+
+/** END SWITCH */
 
 .edit-input {
   width: 60px;

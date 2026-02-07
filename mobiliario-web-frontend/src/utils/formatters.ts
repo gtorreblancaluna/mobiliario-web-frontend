@@ -52,9 +52,9 @@ export const formatDate = (dateString: string | number | Date | undefined | null
   // Validación de seguridad final
   if (isNaN(date.getTime())) return 'Fecha inválida';
 
-  return new Intl.DateTimeFormat('es-MX', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  }).format(date);
+return new Intl.DateTimeFormat('es-MX', {
+    day: '2-digit',   // O 'numeric' si prefieres 6 en lugar de 06
+    month: 'short',   // Esto genera 'feb'
+    year: 'numeric'   // Esto genera '2026'
+  }).format(date).replace('.', ''); // El replace quita el punto que pone JS en 'feb.'
 };
