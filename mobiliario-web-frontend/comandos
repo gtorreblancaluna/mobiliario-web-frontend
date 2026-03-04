@@ -2,7 +2,7 @@
 GCP_PROJECT_ID="windy-container-237418"
 
 # Define un nombre para tu servicio/aplicación
-APP_NAME="vue-app-mobiliario"
+APP_NAME="casa-gaby-app"
 
 # Define la región de despliegue (ej. us-central1)
 REGION="us-central1"
