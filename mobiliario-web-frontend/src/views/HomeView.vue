@@ -11,16 +11,6 @@
         <p>Para instalar en tu iPhone:</p>
         <span>Abre la app en el navegador safari, toca el botón de compartir ⎋ y luego "Agregar a inicio" ➕</span>
       </div>
-      
-      <button @click="router.push('/eventos/0')" class="dash-card create">
-        <div class="icon">➕</div>
-        <span>Crear Evento</span>
-      </button>
-
-      <button @click="router.push('/eventos')" class="dash-card view">
-        <div class="icon">📅</div>
-        <span>Ver Eventos</span>
-      </button>
 
       <button 
         v-if="installEvent" 
@@ -98,12 +88,12 @@ const installPWA = async () => {
 }
 
 .dashboard-header h1 {
-  color: #2c3e50;
+  color: var(--color-text);
   margin-bottom: 5px;
 }
 
 .dashboard-header p {
-  color: #7f8c8d;
+  color: var(--color-text-light);
 }
 
 /* Grid mejorado para escritorio y móvil */

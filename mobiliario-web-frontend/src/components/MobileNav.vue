@@ -8,7 +8,7 @@
 
     <router-link 
         v-show="authStore.isAuthenticated" 
-        to="/eventos" class="nav-item nav-center-action">
+        to="/eventos" class="nav-item">
       <i class="icon">📅</i>
       <span class="label">Eventos</span>
     </router-link>
@@ -49,12 +49,14 @@ const authStore = useAuthStore();
 /* ---------------------------------------------------- */
 .mobile-nav {
   /* Fija la barra en la parte inferior de la ventana */
+
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
   height: 55px; /* Altura estándar para barra de navegación inferior */
-  background-color: white;
+  background-color: var(--color-background);
+  color: var(--color-text);
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
   z-index: 1000;
 
@@ -71,7 +73,7 @@ const authStore = useAuthStore();
   align-items: center;
   text-decoration: none;
   padding: 5px 0;
-  color: #6c757d; /* Gris para ítems inactivos */
+  color: var(--color-text);
   transition: color 0.2s;
 }
 
@@ -90,7 +92,9 @@ const authStore = useAuthStore();
 /* Estilo para el ítem activo */
 .router-link-active,
 .nav-item:hover {
-  color: #3f51b5; /* Color primario para el ítem activo/hover */
+  color: var(--color-text);
+  font-weight: bold; /* Aquí sí lo dejamos fijo */
+  border-bottom: 2px solid var(--color-text); /* Refuerzo visual */
 }
 
 /* --- Estilo Específico para un Botón de Acción Central (Opcional) --- */

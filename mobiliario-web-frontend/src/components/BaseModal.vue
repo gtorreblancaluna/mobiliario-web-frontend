@@ -47,11 +47,11 @@ const close = () => {
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  background-color: #f9f9f9;
+  background-color: var(--color-background);
   resize: none; /* Evita que el usuario cambie el tamaño manualmente */
   font-family: inherit;
   font-size: 1rem;
-  color: #333;
+  color: var(--color-text);
 }
 
 .modal-overlay {
@@ -62,8 +62,13 @@ const close = () => {
   z-index: 1000;
 }
 .modal-content {
-  background: white; padding: 20px; border-radius: 8px;
-  width: 90%; max-width: 450px; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  background: var(--color-background);
+  padding: 20px; 
+  border-radius: 8px;
+  width: 90%; 
+  max-width: 450px; 
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  border: 1px solid #ddd;
 }
 .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; }
 .modal-body { padding: 20px 0; font-size: 1.1rem; }

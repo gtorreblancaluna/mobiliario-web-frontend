@@ -4,12 +4,6 @@
 
 
     <div class="filter-wrapper">
-      <button @click="newEvent" class="btn-toggle">
-        ➕ Nuevo evento
-      </button>
-      <button @click="showFilters = !showFilters" class="btn-toggle">
-        {{ showFilters ? '❌ Cerrar filtros' : '🔍 Mostrar filtros' }}
-      </button>
       <transition name="fade-slide">
         <div v-if="showFilters" class="filter-container">
 
@@ -97,6 +91,15 @@
     </div>
 
     <div v-else class="empty-state">No hay eventos programados.</div>
+
+    <div class="footer-buttons-sticky">
+      <button @click="newEvent" class="btn-toggle">
+        ➕ Nuevo evento
+      </button>
+      <button @click="showFilters = !showFilters" class="btn-toggle">
+        {{ showFilters ? '❌ Cerrar filtros' : '🔍 Mostrar filtros' }}
+      </button>
+    </div>
   </div>
 </template>
 
@@ -191,15 +194,6 @@ onMounted(() => {
   overflow: hidden; /* Evita saltos visuales durante la animación */
 }
 
-.filter-card {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
 
 input:focus {
   outline: none;
@@ -213,7 +207,8 @@ input:focus {
 }
 
 .filter-card {
-  background: #ffffff;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1.25rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -256,7 +251,7 @@ input:focus {
 
 .events-page-container {
   padding: 20px 15px;
-  background-color: #f8f8f8;
+  background-color: var(--background-color);
 }
 
 .page-title {
@@ -271,13 +266,14 @@ input:focus {
 }
 
 .mobile-card {
-  background: white;
+  background: var(--background-color);
   border: 1px solid #ddd;
   border-left: 5px solid var(--color-button); /* Tira de color para destacar */
   border-radius: 6px;
   padding: 15px;
   margin-bottom: 15px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  color: var(--color-text);
 }
 
 .card-header {
@@ -287,17 +283,18 @@ input:focus {
   margin-bottom: 10px;
   border-bottom: 1px solid #eee;
   padding-bottom: 8px;
+  color: var(--color-text);
 }
 
 .event-title {
   font-size: 1.1em;
-  color: #333;
+  color: var(--color-text);
   margin: 0;
 }
 
 .event-tag {
-  background-color: var(--primary-color);
-  color: white;
+  background-color: var(--color-background-button);
+  color: var(--color-text);
   padding: 3px 6px;
   border-radius: 3px;
   font-size: 0.7em;
@@ -306,7 +303,7 @@ input:focus {
 
 .event-detail {
   font-size: 0.9em;
-  color: #555;
+  color: var(--color-text);
   margin: 5px 0;
 }
 
@@ -318,7 +315,7 @@ input:focus {
   display: block;
   text-align: right;
   margin-top: 10px;
-  color: var(--primary-color);
+  color: var(--color-text);
   font-weight: 600;
   text-decoration: none;
 }
@@ -358,7 +355,7 @@ input:focus {
     width: 100%;
     border-collapse: collapse;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    background: white;
+    background: var(--background-color);
     border-radius: 8px;
     overflow: hidden;
   }

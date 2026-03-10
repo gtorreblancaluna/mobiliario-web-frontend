@@ -32,7 +32,7 @@
       <button
           type="submit"
           :disabled="isLoading"
-          class="btn-form"
+          class="btn-toggle"
       >
         {{ isLoading ? 'Ingresando...' : 'Iniciar Sesión' }}
       </button>
@@ -93,13 +93,14 @@ const handleLogin = async () => {
   justify-content: center;
   align-items: flex-start; /* Alinea arriba en móvil para no ocultarse con el teclado */
   padding: 40px 20px;
-  background-color: #f4f7f6; /* Fondo ligero */
+  background-color: var(--color-background); /* Fondo ligero */
+  color: var(--color-text);
 }
 
 .login-form {
   width: 100%;
   max-width: 400px; /* Ancho máximo para el formulario en sí */
-  background: white;
+  background: var(--color-background);
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -109,7 +110,7 @@ const handleLogin = async () => {
 .form-title {
   text-align: center;
   margin-bottom: 30px;
-  color: #333;
+  color: var(--color-text);
 }
 
 /* --- Grupos de Input --- */
@@ -121,7 +122,7 @@ label {
   display: block;
   font-weight: 600;
   margin-bottom: 8px;
-  color: #555;
+  color: var(--color-text);
   font-size: 0.9em;
 }
 

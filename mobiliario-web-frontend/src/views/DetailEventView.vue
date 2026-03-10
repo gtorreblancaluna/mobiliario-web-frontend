@@ -18,18 +18,6 @@
         </span>
       </header>
 
-      <div class="filter-wrapper">
-        <button @click="handleEditClick" class="btn-toggle" :disabled="isLoading">
-          <span v-if="isLoading">⌛ Cargando...</span>
-          <span v-else>
-            {{ isEditing ? '💾 Guardar' : '✏️ Editar' }}
-          </span>
-        </button>
-        <button @click="cancelEdit" v-if="isEditing" class="btn-toggle">
-          {{ '❌ Cancelar' }}
-        </button>
-      </div>
-
       <section class="detalle-info">
         <div class="setting-row" v-show="isEditing">
           <div class="text-info">
@@ -146,13 +134,11 @@
               type="date" 
               v-model="fechaDevolucionModel">
             <label for="">
-              hora de inicio: 
               <input 
                 type="time" 
                 v-model="initHourFechaDevolucion">
             </label>
             <label for="">
-              hora de fin:
             <input 
               type="time" 
               v-model="endHourFechaDevolucion">
@@ -219,6 +205,7 @@
                       max="1000"
                       @input="calculateTotals"
                       type="number"
+                      inputmode="numeric"
                       v-model.number="item.amount"
                   </div>
                 </td>
@@ -232,6 +219,7 @@
                       min="0"
                       max="100"
                       type="number"
+                      inputmode="numeric"
                       @input="calculateTotals"
                       v-model.number="item.discountPercentage"
                   </div>
@@ -344,6 +332,7 @@
             <span v-else class="valor-input">
               <input
                 type="number"
+                inputmode="numeric"
                 v-model.number="eventDetailResponse.event.porcentajeDescuento"
                 @input="calculateTotals"
                 min="0"
@@ -373,6 +362,7 @@
             <span v-else class="valor-input">
               <input
                 type="number"
+                inputmode="numeric"
                 v-model.number="eventDetailResponse.event.envioRecoleccion"
                 @input="calculateTotals"
                 min="0"
@@ -394,6 +384,7 @@
             <span v-else class="valor-input">
               <input
                 type="number"
+                inputmode="numeric"
                 v-model.number="eventDetailResponse.event.depositoGarantia"
                 @input="calculateTotals"
                 min="0"
@@ -413,6 +404,7 @@
             <span v-else class="valor-input">
               <input
                 type="number"
+                inputmode="numeric"
                 v-model.number="eventDetailResponse.event.iva"
                 @input="calculateTotals"
                 min="0"
@@ -448,6 +440,19 @@
     <div v-else class="error-state">
       <p>No se encontró el evento solicitado.</p>
     </div>
+    
+    <div class="footer-buttons-sticky">
+      <button @click="handleEditClick" class="btn-toggle" :disabled="isLoading">
+        <span v-if="isLoading">⌛ Cargando...</span>
+        <span v-else>
+          {{ isEditing ? '💾 Guardar' : '✏️ Editar' }}
+        </span>
+      </button>
+      <button @click="cancelEdit" v-if="isEditing" class="btn-toggle">
+        {{ '❌ Cancelar' }}
+      </button>
+    </div>
+
   </div>
 
   <! -- Modal nuevo pago. -->
@@ -463,6 +468,7 @@
         <label>Cantidad:</label>
         <input 
           type="number" 
+          inputmode="numeric"
           v-model.number="newPayment.amount"           
           placeholder="0.00"
         >
@@ -485,7 +491,7 @@
         >
       </div>
 
-      <div class="field-container">
+      <div class="filter-field">
         <label>Tipo de Pago:</label>
         <select v-model="newPayment.typeId" >
           <option value="" disabled>Seleccionar tipo de pago:</option>
@@ -609,11 +615,17 @@
         </div>
         <div class="form-field">
           <label>Móvil</label>
-          <input type="tel" v-model="newClient.mobilePhone" placeholder="10 dígitos">
+          <input 
+          type="tel" 
+          inputmode="tel"
+          pattern="[0-9]*"
+          v-model="newClient.mobilePhone" placeholder="10 dígitos">
         </div>
         <div class="form-field">
           <label>Email</label>
-          <input type="email" v-model="newClient.email" placeholder="correo@ejemplo.com">
+          <input type="email" 
+                v-model="newClient.email" 
+                placeholder="correo@ejemplo.com">
         </div>
         <div class="form-field">
           <label>Medio de contacto</label>
@@ -652,6 +664,7 @@
       <button @click="addClient" class="btn-primary">Guardar Cliente</button>
     </div>
   </div>
+
 </div>
 
   <div>
@@ -1266,7 +1279,7 @@ input:checked + .slider:before {
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  background-color: #ffffff;
+  background-color: var(--color-background);
   border-bottom: 1px solid #f1f5f9;
 }
 
@@ -1279,12 +1292,12 @@ input:checked + .slider:before {
 .setting-row .title {
   font-size: 1rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--color-text)
 }
 
 .setting-row .description {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -1299,7 +1312,8 @@ input:checked + .slider:before {
   text-align: right;
   font-family: inherit;
   font-size: 0.9rem;
-  background-color: #fff;
+  background-color: var(--color-background);
+  color: var(--color-text);
 }
 
 /* Quitar flechas del input number para que sea más limpio */
@@ -1324,13 +1338,14 @@ input:checked + .slider:before {
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: var(--color-background-button);
+  border: 1px solid var(--color-button-border);
 }
 
 /* Botón Guardar */
 .btn-primary {
-  background-color: var(--primary-color, #2563eb);
-  color: white;
-  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+  background-color: var(--color-background-button);
+  color: var(--color-text);
 }
 
 .btn-primary:active {
@@ -1340,8 +1355,8 @@ input:checked + .slider:before {
 
 /* Botón Cancelar */
 .btn-secondary {
-  background-color: #f3f4f6;
-  color: #4b5563;
+  background-color: var(--color-background-button);
+  color: var(--color-text);
 }
 
 .btn-secondary:active {
@@ -1350,7 +1365,7 @@ input:checked + .slider:before {
 
 /* Card del Modal */
 .modal-card {
-  background: white;
+  background: var(--color-background);
   width: 100%;
   max-height: 90vh;
   border-radius: 20px 20px 0 0; /* Bordes redondeados arriba */
@@ -1372,16 +1387,21 @@ input:checked + .slider:before {
   justify-content: space-between;
 }
 
-.modal-header { border-bottom: 1px solid #eee; }
+.modal-header { 
+  background-color: var(--color-background);
+  border-bottom: 1px solid var(--color-border); 
+}
+
 .modal-footer { 
   border-top: 1px solid #eee; 
   gap: 10px;
-  background: #f9f9f9;
+  background: var(--color-background);
 }
 
 .modal-body {
   padding: 1.5rem;
   overflow-y: auto; /* Scroll interno */
+  background-color: var(--color-background);
 }
 
 /* Grid del Formulario */
@@ -1400,7 +1420,7 @@ input:checked + .slider:before {
 .form-field label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #444;
+  color: var(--color-text)
 }
 
 .form-field input, .form-field select {
@@ -1423,8 +1443,8 @@ input:checked + .slider:before {
 .autocomplete-results {
   position: absolute;
   top: 100%; left: 0; right: 0;
-  background: white;
-  border: 1px solid #ddd;
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
   border-radius: 0 0 10px 10px;
   max-height: 200px;
   overflow-y: auto;
@@ -1433,8 +1453,9 @@ input:checked + .slider:before {
 }
 
 .autocomplete-results li {
+  background-color: var(--color-background);
   padding: 12px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -1444,10 +1465,10 @@ input:checked + .slider:before {
 .divider {
   text-align: center;
   margin: 1.5rem 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border);
   line-height: 0.1em;
 }
-.divider span { background: #fff; padding: 0 10px; color: #888; font-size: 0.8rem; }
+.divider span { background: var(--color-background); padding: 0 10px; color: #888; font-size: 0.8rem; }
 
 
 /* Init modal */
@@ -1468,7 +1489,7 @@ input:checked + .slider:before {
 
 /* Caja del Modal */
 .modal-content {
-  background: #ffffff;
+  background: var(--color-background);
   width: 100%;
   max-width: 450px;
   max-height: 90vh;
@@ -1526,7 +1547,7 @@ input:checked + .slider:before {
 .btn-outline-sm {
   background: transparent;
   border: 1px solid #d1d5db;
-  color: #374151;
+  color: var(--color-text);
   /* Aumentamos el padding para cumplir con el Touch Target (mínimo 44px) */
   padding: 0.5rem; 
   border-radius: 8px;
@@ -1579,7 +1600,7 @@ input:checked + .slider:before {
 
 /* --- TARJETA PRINCIPAL --- */
 .detalle-card {
-  background: #ffffff;
+  background: var(--color-background);
   border-radius: 20px;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -1588,14 +1609,19 @@ input:checked + .slider:before {
 
 .detalle-header {
   padding: 1.5rem;
-  background: #f9fafb;
+  background: var(--color-background);
   border-bottom: 1px solid #f1f5f9;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  color: var(--color-text);
 }
 
-.detalle-header h1 { font-size: 1.5rem; font-weight: 800; margin: 0; }
+.detalle-header h1 { 
+  font-size: 1.5rem; 
+  font-weight: 800; 
+  margin: 0; 
+}
 
 /* --- ESTADOS (BADGES) --- */
 .status-badge {
@@ -1621,27 +1647,37 @@ input:checked + .slider:before {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
+  background-color: var(--color-background);
 }
 
 .info-group {
-  background: #f8fafc;
   padding: 1rem;
   border-radius: 12px;
   border: 1px solid #f1f5f9;
+  background-color: var(--color-background);
+  color: var(--color-text);
 }
 
 .info-group label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--color-text);
   margin-bottom: 0.25rem;
   display: block;
 }
 
-.info-group p { font-size: 1rem; font-weight: 500; margin: 0; color: #374151; }
+.info-group p { 
+  font-size: 1rem; 
+  font-weight: 500; 
+  margin: 0; 
+  color: var(--color-text); 
+}
 
 /* --- SECCIÓN ARTÍCULOS (RESPONSIVE) --- */
-.detalle-section { padding: 1.5rem; }
+.detalle-section { 
+  padding: 1.5rem; 
+  background-color: var(--color-background);
+}
 
 
 .table-section { width: 100%; border-collapse: collapse; }
@@ -1666,7 +1702,7 @@ input:checked + .slider:before {
   .table-section thead { display: none; }
   .table-section tr {
     display: block;
-    background: #ffffff;
+    background-color: var(--color-background);
     border: 1px solid #f1f5f9;
     border-radius: 12px;
     margin-bottom: 1rem;
@@ -1682,7 +1718,7 @@ input:checked + .slider:before {
   .table-section td::before {
     content: attr(data-label);
     font-weight: 700;
-    color: #94a3b8;
+    color: var(--color-text);
     font-size: 0.75rem;
     text-transform: uppercase;
   }
@@ -1691,6 +1727,8 @@ input:checked + .slider:before {
 
 /* Vista Desktop: Tabla Normal */
 @media (min-width: 768px) {
+
+
 
   .btn-primary, .btn-secondary {
     width: auto; /* Ancho automático según el texto */
@@ -1725,10 +1763,12 @@ input:checked + .slider:before {
 }
 
 /* --- RESUMEN DE TOTALES (ESTILO TICKET) --- */
-.detalle-footer { padding: 1.5rem; background: #f8fafc; }
+.detalle-footer { 
+  padding: 1.5rem; 
+  background-color: var(--color-background); }
 
 .resumen-container {
-  background: #ffffff;
+  background-color: var(--color-background);
   padding: 1.25rem;
   border-radius: 16px;
   border: 1px solid #e2e8f0;
@@ -1742,8 +1782,8 @@ input:checked + .slider:before {
   font-size: 0.9rem;
 }
 
-.label { color: #64748b; }
-.valor { font-weight: 600; color: #1e293b; }
+.label { color: var(--color-text); }
+.valor { font-weight: 600; color: var(--color-text); }
 .descuento { color: #ef4444; }
 
 .divisor { border: 0; border-top: 1px dashed #e2e8f0; margin: 1rem 0; }

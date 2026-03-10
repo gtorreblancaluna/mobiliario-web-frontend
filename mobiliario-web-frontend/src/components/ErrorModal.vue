@@ -55,7 +55,7 @@ function closeModal() {
 }
 
 .modal-dialog {
-  background: white;
+  background: var(--color-background);
   border-radius: 8px;
   padding: 20px;
   width: 90%;
@@ -63,6 +63,7 @@ function closeModal() {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   transform: translateY(0);
   transition: all 0.3s ease-in-out;
+  border: 1px solid #ddd;
 }
 
 /* ---------------------------------------------------- */
